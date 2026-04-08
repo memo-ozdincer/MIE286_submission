@@ -23,22 +23,16 @@ cat("\nCohen's d =", round(cohen_d_rt, 3), "\n")
 cat("Mean difference =", round(mean(d_rt), 1), "ms\n")
 cat("SD of differences =", round(sd(d_rt), 1), "ms\n")
 
-# ── H2: Radial Error — Wilcoxon signed-rank (one-tailed) ────────
-# Shapiro-Wilk rejected normality for error differences → nonparametric
-cat("\n=== H2: RADIAL ERROR (Wilcoxon — normality violated) ===\n")
-cat("H0: median(visual_error - auditory_error) <= 0\n")
-cat("H1: median(visual_error - auditory_error) > 0 (one-tailed)\n\n")
+# ── H2: Radial Error — Paired t-test (one-tailed) ────────────────
+# Shapiro-Wilk confirmed normality for 60-trial subset (p = .406)
+cat("\n=== H2: RADIAL ERROR (paired t-test) ===\n")
+cat("H0: mu_visual_error <= mu_auditory_error\n")
+cat("H1: mu_visual_error > mu_auditory_error (one-tailed)\n\n")
 
 d_error <- pm$mean_error_visual - pm$mean_error_auditory
-h2_test <- wilcox.test(pm$mean_error_visual, pm$mean_error_auditory,
-                       paired = TRUE, alternative = "greater")
+h2_test <- t.test(pm$mean_error_visual, pm$mean_error_auditory,
+                  paired = TRUE, alternative = "greater")
 print(h2_test)
-
-# Also report paired t-test for comparison (sensitivity check)
-h2_ttest <- t.test(pm$mean_error_visual, pm$mean_error_auditory,
-                   paired = TRUE, alternative = "greater")
-cat("\nSensitivity check — paired t-test:\n")
-print(h2_ttest)
 
 cohen_d_err <- mean(d_error) / sd(d_error)
 cat("\nCohen's d =", round(cohen_d_err, 3), "\n")
@@ -52,7 +46,7 @@ cat("\n=== H3: SPEED-ACCURACY TRADEOFF STRUCTURE ===\n")
 # PRIMARY: Multiple regression with interaction (Week 12-13)
 cat("\n--- Multiple Regression: error ~ rt * condition ---\n")
 ct$condition <- factor(ct$condition, levels = c("auditory", "visual"))
-model_int <- lm(error ~ rt * condition, data = ct)
+model_int <- lm(error ~ rt * condition + device, data = ct)
 cat("\nModel summary:\n")
 print(summary(model_int))
 cat("\nANOVA table:\n")

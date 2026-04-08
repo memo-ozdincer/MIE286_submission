@@ -81,5 +81,14 @@ complete <- participant_means %>%
 
 cat("Participants with both conditions:", nrow(complete), "/", nrow(participant_means), "\n")
 
-saveRDS(complete, "output/participant_means.rds")
-cat("Saved: output/clean_trials.rds, output/participant_means.rds\n")
+# Filter to 60-trial participants only (30-trial produced unstable estimates)
+complete_60 <- complete %>% filter(n_trials_visual >= 50)
+cat("60-trial participants:", nrow(complete_60), "\n")
+
+# Update trial-level data to match
+trials_clean <- trials_clean %>% filter(uid %in% complete_60$uid)
+cat("Clean trials (60-trial only):", nrow(trials_clean), "\n")
+
+saveRDS(trials_clean, "output/clean_trials.rds")
+saveRDS(complete_60, "output/participant_means.rds")
+cat("Saved: output/clean_trials.rds, output/participant_means.rds (60-trial only)\n")
